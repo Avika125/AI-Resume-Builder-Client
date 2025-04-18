@@ -3,52 +3,62 @@ import { Input } from '@/components/ui/input';
 import { ResumeInfoContext } from '@/context/ResumeInfoContext';
 import React, { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-
 import { LoaderCircle } from 'lucide-react';
 import GlobalApi from './../../../../../service/GlobalApi';
 import { toast } from 'sonner';
 
-function PersonalDetails({enabledNext}) {
-  const params=useParams();
+function PersonalDetails({ enabledNext }) {
+  const params = useParams();
   const { resumeInfo, setResumeInfo } = useContext(ResumeInfoContext);
-  
-  const [formData,setFormData]=useState();
-  const [loading,setLoading]=useState(false);
+  const [formData, setFormData] = useState({});
+  const [loading, setLoading] = useState(false);
 
-  useEffect(()=>{
-    console.log(params)
-  },[])
+  useEffect(() => {
+    console.log(params);
+  }, []);
 
   const handleInputChange = (e) => {
-    enabledNext(false)
+    enabledNext(false);
     const { name, value } = e.target;
 
-    setFormData({
-      ...formData,
-      [name]:value
-    })
-    setResumeInfo({
-      ...resumeInfo,
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
-    })
+    }));
+
+    setResumeInfo((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const onSave = (e) => {
+  const onSave = async (e) => {
     e.preventDefault();
-    setLoading(true)
-    
-    const data={
-      data:formData
+
+    const resumeId = params?.resumeId;
+
+    if (!resumeId) {
+      toast.error("Resume ID not found in the URL.");
+      return;
     }
-    GlobalApi.UpdateResumeDetail(params?.resumeId,data).then(resp=>{
-       console.log(resp);
-       enabledNext(true);
-       setLoading(false);
-       toast("Details updated")
-    },(error)=>{
+
+    setLoading(true);
+
+    const data = {
+      data: formData,
+    };
+
+    try {
+      const resp = await GlobalApi.UpdateResumeDetail(resumeId, data);
+      console.log(resp);
+      enabledNext(true);
+      toast.success("Details updated");
+    } catch (error) {
+      toast.error("Failed to update details.");
+      console.error(error);
+    } finally {
       setLoading(false);
-    })
-    
+    }
   };
 
   return (
@@ -113,9 +123,9 @@ function PersonalDetails({enabledNext}) {
           </div>
         </div>
         <div className='mt-3 flex justify-end'>
-          <Button type='submit'
-          disabled={loading}>
-             {loading?<LoaderCircle className='animate-spin'/>:'Save'}</Button>
+          <Button type='submit' disabled={loading}>
+            {loading ? <LoaderCircle className='animate-spin' /> : 'Save'}
+          </Button>
         </div>
       </form>
     </div>

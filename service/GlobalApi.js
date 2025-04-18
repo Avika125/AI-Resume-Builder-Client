@@ -12,13 +12,11 @@ const axiosClient = axios.create({
 
 const CreateNewResume = (data) => axiosClient.post('/user-resumes', data);
 
-const GetUserResumes = (userEmail) => axiosClient.get('/user-resumes');
+const GetUserResumes = () => axiosClient.get('/user-resumes');
 
-// ✅ Get a single resume by ID
-const GetSingleResume = (id) => axiosClient.get('/user-resumes/' + id);
+const GetSingleResume = (id) => axiosClient.get(`/user-resumes/${id}`);
 
-// ✅ Fixed typo and added slash
-const UpdateResumeDetail = (id, data) => axiosClient.put('/user-resumes/' + id, data);
+const UpdateResumeDetail = (id, data) => axiosClient.put(`/user-resumes/${id}`, data);
 
 export default {
   CreateNewResume,
